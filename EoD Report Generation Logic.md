@@ -29,34 +29,16 @@ For the tickets identified in Step 2, intelligently draft a summary of the work:
 3. **Identify Blockers:** Scan the context for blockers, bottlenecks, or dependencies and summarize them clearly.
 
 ### Step 4: Report Generation
-Generate the EoD report matching the structure below. Include any bold warning notes passed down from the Validator at the very top.
-
-**[Insert Bold Warning Notes from Validator Here, if any]**
-
-**Overall assigned tickets count:** [Count]
-**To-do state ticket count:** [Count]
-**In-Progress state ticket count:** [Count]
-**Completed tickets in last 7 days:** [Count]
-**Oldest ticket age in days:** [Count]
-
-**End of the Day Report [Optional: - Half-Day]**
-
-**Completed (Today's Actuals)**
-- [JIRA-ID]: [Task Title] 
-  - Summary: [Meaningful drafted summary of the completed work based on description/comments] (Actual: [X]h or N/A)
-
-**In Progress (Today's Progress)**
-- [JIRA-ID]: [Main Feature / Task Title]
-    - Focus: [Meaningful 1-2 sentence summary synthesized from the Title, Description, and today's updates/comments]
-    - Est. Remaining: [X-Y]h or Unknown
-
-**Blockers**
-- [JIRA-ID]: [Meaningful summary of the bottleneck based on context]
-*(If no blockers are identified, explicitly output: "No blockers")*
+Generate the EoD report matching the structure from the "EoD Format" document present in the knowledgebase. Include any bold warning notes passed down from the Validator at the end.
 
 ### Step 5: Message Delivery & Hand-off
-1. Trigger the action tool to post the fully generated EoD report text into the designated Google Chat space thread.
-2. Return a success status to the Main Orchestrator indicating the report has been successfully generated and posted.
+1. Trigger the **Fetch Chat Messages** action tool for the designated space (`space_id`: "AAQAHPmO4jw"). Do not search in any other space.
+2. Scan the retrieved messages to find the specific message containing the text `EoD reports`.
+3. **Thread ID Extraction:** 
+   - If a matching message is found, extract its `thread_id`.
+   - If a matching message is **NOT** found, proceed to step 4 without a `thread_id` (this will create a new thread).
+4. Trigger the **Send Chat Message** action tool to post the fully generated EoD report text. Pass the `thread_id` if one was found; otherwise, omit it to start a new thread.
+5. Return a success status to the Main Orchestrator indicating the report has been successfully generated and posted.
 
 ---
 
@@ -72,8 +54,14 @@ To ensure portability across different calendar platforms (Google Calendar, Outl
 
 ### 2. Messaging Abstraction
 To ensure portability for posting messages to platforms like Google Chat or Microsoft Teams:
+
+- **Function Action:** `fetch_chat_messages`
+- **Parameters Required:**
+  - `space_id`: "AAQAHPmO4jw"
+- **Expected Return:** Array of recent message objects containing `message_text` and `thread_id`.
+
 - **Function Action:** `send_chat_message`
 - **Parameters Required:**
   - `space_id`: "AAQAHPmO4jw"
-  - `thread_id`: "q8E1WJMmGic"
+  - `thread_id`: [Dynamically extracted from Step 5, omit if not found]
   - `message_body`: [Formatted Text / Markdown String containing the EoD report]
