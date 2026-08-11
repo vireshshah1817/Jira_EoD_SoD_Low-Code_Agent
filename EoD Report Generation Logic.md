@@ -32,14 +32,20 @@ For the tickets identified in Step 2, extract and synthesize the work summary by
    - Estimate remaining time based on context if possible, or state "Unknown" if insufficient data exists.
 3. **Identify Blockers:** Extract the specific text written after `Blockers:` in the daily comment format. If it says "None" or if no blockers are identified in the fallback context, explicitly output "No blockers".
 
-### Step 4: Report Generation (STRICT DOCUMENT TEMPLATE & USER TAGGING)
-1. Access the **"EoD Format"** document present in your Knowledge Base.
-2. You MUST use the EXACT text from this document as your boilerplate literal string. Do not alter, add, or remove any asterisks (`***` or `*`), hyphens, or spacing. 
-3. **Tag the User:** When replacing the `[Name of the User whose report was generated]` placeholder, replace it with a direct user tag (`<users/user_email>`) to ensure they receive a push notification for the message.
-4. Inject your remaining synthesized data by performing a direct replacement of the bracketed variables (e.g., replacing `[Count]` with the actual number).
-5. For the dynamic list sections (`Completed`, `In Progress`, and `Blockers`), duplicate the exact bullet-point format shown in the document for each ticket.
-6. Replace the placeholder `*“Bold Warning Notes from Validator Here, if any”*` at the bottom with the exact warning notes passed from the Validator. If there are no warnings, remove this placeholder line entirely.
-7. Do NOT pass the text through any markdown summarization or cleaning before sending it to the chat tool.
+### Step 4: Report Generation (SEMANTIC FORMATTING & USER TAGGING)
+1. Base your output strictly on the **"EoD Format"** reference document structure. 
+2. **User Tagging:** You MUST replace the placeholder for the user's name with an active Google Chat tag. Use the exact syntax `<users/ACTUAL_EMAIL>` where `ACTUAL_EMAIL` is dynamically replaced with the user's actual email address (e.g., `<users/john.doe@example.com>`). Do NOT output the literal string `<users/user_email>`.
+3. **Formatting Rules:** Apply Google Chat-compatible Markdown formatting semantically as follows. For bold text use a single asteriks (`*`) STRICTLY don't use any double asteriks:
+   - **Main Heading:** Format as bold and italic. Ensure the user tag and date are included: `End of the Day Report [Optional: - Half-Day] - <users/ACTUAL_EMAIL> - [Date]`
+   - **Metrics:** Format the metric labels as bold and italic. Inject the corresponding `[Count]` values immediately following the labels: `Overall assigned tickets count: [Count]`
+   - **Completed Section Heading:** Format as bold and italic: `Completed (Today's Actuals)`
+   - **Completed Items:** Indent with two spaces and use a bullet point (`-`) for each item: `  - [JIRA-ID]: [Task Title]: Summary: [Meaningful summary]. (Actual: [X]h or N/A)`
+   - **In Progress Section Heading:** Format as bold: `In Progress (Today's Progress)`
+   - **In Progress Items:** Indent with two spaces and use a bullet point (`-`): `  - [JIRA-ID]: [Task Title]: [Meaningful summary]. Est. Remaining: [X-Y]h or Unknown`
+   - **Blockers Section Heading:** Format as bold: `Blockers`
+   - **Blockers Items:** Indent with two spaces and use a bullet point (`-`): `  - [JIRA-ID]: [Meaningful summary of the bottleneck]`
+   - **No Blockers:** If no blockers exist, format as italic: `*(If no blockers are identified, explicitly output: "No blockers")*`
+   - **Warning Notes:** If warning notes are passed from the Validator, format them as bold and italic at the very bottom of the report. If there are no warnings, omit this entirely. Don't add the issues url here only the id and the description of the notes passed from the Validator.
 
 ### Step 5: Message Delivery & Hand-off (CRITICAL)
 1. Trigger the **Fetch Chat Messages** action tool for the designated space (`space_id`: "AAQAHPmO4jw"). Do not search in any other space.
